@@ -5,17 +5,30 @@ var app = express();
 
 module.exports = router
 
-
-router.get('/', function(req, res){
+function getPages (req, res, next){
 	res.render('index',{
      
     });
-})
+};
+
+router.get ('/', getPages)
+router.get ('/wiki', getPages)
+
 router.get('/:id', function(req, res){
 	res.render('wikipage',{
      
     });
 })
+
+
+
+
+
+// POST	/wiki/	/	submit a new page to the database
+
+
+// GET	/wiki/add/	/add	retrieve the "add a page" form
+
 
 
 // app.use('/error', function(err, req, res, next){

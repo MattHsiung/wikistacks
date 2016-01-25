@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var morgan = require('morgan');
 var swig = require('swig');
-var router = require('./routes');
+var router = require('./routes/wiki.js');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 
@@ -23,8 +23,12 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true })); // for HTML form submits
 app.use(bodyParser.json()); // would be for AJAX requests
 
+app.get('/', function(req, res, next) {
+	res.render('index', {
 
-app.use('/', router)
+	})	
+});
+app.use('/wiki', router)
 
 var server = app.listen(1337, function(){
   console.log('listening on port 1337');
