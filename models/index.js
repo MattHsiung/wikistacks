@@ -12,7 +12,8 @@ var pageSchema = new Schema({
   content:  {type: String, required: true},
   status:   {type: String, enum: ['open', 'closed']},
   date:     {type: Date, default: Date.now},
-  author:   {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
+  author:   {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  tags: [{type: String}]
 });
 
 function generateUrlTitle (title) {
@@ -25,10 +26,27 @@ function generateUrlTitle (title) {
     return Math.random().toString(36).substring(2, 7);
   }
 }
+
+function generateTags (string){
+  return string[0].split(" ")
+}
+
 pageSchema.pre('validate', function(next){
   this.urlTitle = generateUrlTitle(this.title)
+  console.log(this.tags)
+  this.tags = generateTags(this.tags)
   next();
 })
+
+pageSchema.statics.findByTags = function(tags){
+  return this.find({
+    tags: {$in: tags}
+  }).exec()
+}
+
+pageSchema.methods.findSimilarTypes = function (cb) {
+  return this.model('Page').find({ $and: [{tags: {$in: this.tags} },{ _id: { $ne: this._id }} ]}, cb);
+}
 
 pageSchema.virtual('route').get(function () {
   return '/wiki/'+this.urlTitle;
