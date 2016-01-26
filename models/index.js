@@ -6,7 +6,7 @@ mongoose.connect('mongodb://localhost/wikistack'); // <= db name will be 'wikist
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'mongodb connection error:'));
 
-var pageSchema = new mongoose.Schema({
+var pageSchema = new Schema({
   title:    {type: String, required: true},
   urlTitle: {type: String, required: true},
   content:  {type: String, required: true},
@@ -14,6 +14,21 @@ var pageSchema = new mongoose.Schema({
   date:     {type: Date, default: Date.now},
   author:   {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 });
+
+function generateUrlTitle (title) {
+  if (title) {
+    // Removes all non-alphanumeric characters from title
+    // And make whitespace underscore
+    return title.replace(/\s+/g, '_').replace(/\W/g, '');
+  } else {
+    // Generates random 5 letter string
+    return Math.random().toString(36).substring(2, 7);
+  }
+}
+pageSchema.pre('validate', function(next){
+  this.urlTitle = generateUrlTitle(this.title)
+  next();
+})
 
 pageSchema.virtual('route').get(function () {
   return '/wiki/'+this.urlTitle;
